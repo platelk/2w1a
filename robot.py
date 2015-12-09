@@ -13,9 +13,11 @@ class VRepClient:
 
     def connect(self, ip='127.0.0.1', port=19997):
         self.clientID = vrep.simxStart(ip, port, True, True, 5000, 5)
+        vrep.simxSynchronous(self.clientID, True)
         self.startSimulation()
 
     def startSimulation(self):
+        vrep.simxSynchronousTrigger(self.clientID)
         vrep.simxStartSimulation(self.clientID, self.opmode)
 
     def isConnected(self):

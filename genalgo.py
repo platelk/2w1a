@@ -1,5 +1,8 @@
-import random
 import numpy
+import math
+
+def calc_dist(p1,p2):
+    return numpy.linalg.norm(numpy.array(p1)-numpy.array(p2))
 
 class Candidate:
     def __init__(self, DNA=None):
@@ -44,12 +47,21 @@ def middleCrossOver(dna1, dna2):
     return cdna1, cdna2
 
 
-def randomSelection(candidate, population):
-    return candidate, population[numpy.random.randint(len(population))]
+def randomSelection(population):
+    return population[numpy.random.randint(len(population))], population[numpy.random.randint(len(population))]
 
+
+def rankSelection(population):
+    def getIdx(population):
+        nbRand = 0
+        for i in range(len(population)):
+            nbRand += (i+1)*len(population)
+        r = numpy.random.randint(nbRand)
+        return int(math.ceil(r / (len(population)) / len(population)))
+    return population[getIdx(population)], population[getIdx(population)]
 
 class GenAlgo:
-    def __init__(self, createCandidate, fitness, nbPopulate=5, crossOverFct=middleCrossOver, selection=randomSelection):
+    def __init__(self, createCandidate, fitness, nbPopulate=5, crossOverFct=middleCrossOver, selection=rankSelection):
         self.createCandidate = createCandidate
         self.fitness = fitness
         self.populations = []
@@ -74,18 +86,16 @@ class GenAlgo:
         return child1, child2
 
     def sortCandidate(self):
-        return sorted(self.populations[-1], key=self.fitness)
-        #return self.populations[-1]
+        return sorted(self.populations[-1], key=self.fitness, cmp=lambda x, y: int((calc_dist((0, 0, 0), x) - calc_dist((0, 0, 0), y))*1000))
 
     def run(self, it=5, state={}):
         self.createPopulation()
         for i in range(it):
             self.sortCandidate()
             newGeneration = []
-            for c in self.populations[-1]:
-                print c.getDNA()
+            for c in range(len(self.populations[-1])):
                 print "---"
-                c1, c2 = self.selection(c, self.populations[-1])
+                c1, c2 = self.selection(self.populations[-1])
                 child1, child2 = self.crossOver(c1, c2)
                 newGeneration.append(child1)
             print "================="
