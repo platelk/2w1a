@@ -1,6 +1,9 @@
 from genalgo import *
 import numpy
 
+def calc_dist(p1,p2):
+    return numpy.linalg.norm(numpy.array(p1)-numpy.array(p2))
+
 
 def bitfield(n, l=9):
     return [n >> i & 1 for i in range(l,-1,-1)]
@@ -70,10 +73,12 @@ def positionFitness(candidate):
     #candidate.robot.vrep_client.connect()
     #candidate.robot.vrep_client.waitUntilAvailable()
     candidate.robot.vrep_client.startSimulation()
+    save = candidate.robot.position()
     print "base position: ", candidate.robot.position()
     for i in range(3):
         candidate.do()
-    print "after position: ", candidate.robot.position()
     candidate.robot.vrep_client.stopSimulation()
+    after = candidate.robot.position()
+    print "after position: ", after
     #candidate.robot.vrep_client.stopSimulation()
-    return candidate.robot.position()
+    return int(calc_dist(after, save)*100000)

@@ -104,13 +104,14 @@ class GenAlgo:
           self.populations = [pickle.load(loadfile)]
 
     def sortCandidate(self):
-        return sorted(self.populations[-1], key=self.fitness, cmp=lambda x, y: int((calc_dist((0, 0, 0), x) - calc_dist((0, 0, 0), y))*1000))
+        return sorted(self.populations[-1], key=self.fitness, cmp=lambda x, y: cmp(x, y))
 
     def run(self, it=5, state={}):
         if len(self.populations) == 0:
           self.createPopulation()
         for i in range(it):
-            self.sortCandidate()
+            print ">>>{ Iteration: ", i, " }<<<"
+            self.populations[-1] = self.sortCandidate()
             newGeneration = []
             for c in range(len(self.populations[-1])):
                 print "---"
