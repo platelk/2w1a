@@ -77,7 +77,7 @@ class GenAlgo:
         return sorted(self.populations[-1], key=self.fitness)
         #return self.populations[-1]
 
-    def run(self, it=5):
+    def run(self, it=5, state={}):
         self.createPopulation()
         for i in range(it):
             self.sortCandidate()

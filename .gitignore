@@ -2,6 +2,9 @@
 __pycache__/
 *.py[cod]
 
+#VREP remote API
+remoteApi.*
+
 # C extensions
 *.so
 

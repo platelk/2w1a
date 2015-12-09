@@ -6,6 +6,10 @@ def bitfield(n, l=9):
     return [n >> i & 1 for i in range(l,-1,-1)]
 
 
+def fromBitfield(field):
+    return int(''.join([str(e) for e in field]), base=2)
+
+
 class RobotOperation(Candidate):
     def __init__(self, robot, motorToMove=1, rotation=180, DNA=None):
         Candidate.__init__(self)
@@ -26,8 +30,8 @@ class RobotOperation(Candidate):
         return [bitfield(self.motorToMove, 1), bitfield(self.rotation, 8)]
 
     def setDNA(self, DNA):
-        self.motorToMove = int(''.join([str(e) for e in DNA[0]]), base=2)
-        self.rotation = int(''.join([str(e) for e in DNA[1]]), base=2)
+        self.motorToMove = fromBitfield(DNA[0])
+        self.rotation = fromBitfield(DNA[1])
 
     def copy(self, DNA=None):
         return RobotOperation(self.robot, self.motorToMove, self.rotation, DNA)
@@ -39,7 +43,7 @@ class StepCandidate(Candidate):
         self.robot = robot
         self.operations = []
         if generateOperations:
-            for i in range(numpy.random.randint(10)+3):
+            for i in range(numpy.random.randint(50)+10):
                 self.operations.append(RobotOperation(robot, numpy.random.randint(3), numpy.random.randint(340)))
 
     def getDNA(self):
@@ -63,4 +67,12 @@ def createWheelCandidate(robot):
 
 
 def positionFitness(candidate):
+    #candidate.robot.vrep_client.connect()
+    #candidate.robot.vrep_client.waitUntilAvailable()
+    candidate.robot.vrep_client.startSimulation()
+    print "base position: ", candidate.robot.position()
+    candidate.do()
+    print "after position: ", candidate.robot.position()
+    candidate.robot.vrep_client.stopSimulation()
+    #candidate.robot.vrep_client.stopSimulation()
     return candidate.robot.position()
