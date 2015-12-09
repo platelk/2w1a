@@ -43,7 +43,7 @@ class StepCandidate(Candidate):
         self.robot = robot
         self.operations = []
         if generateOperations:
-            for i in range(numpy.random.randint(50)+10):
+            for i in range(numpy.random.randint(70)+40):
                 self.operations.append(RobotOperation(robot, numpy.random.randint(3), numpy.random.randint(340)))
 
     def getDNA(self):
@@ -71,7 +71,8 @@ def positionFitness(candidate):
     #candidate.robot.vrep_client.waitUntilAvailable()
     candidate.robot.vrep_client.startSimulation()
     print "base position: ", candidate.robot.position()
-    candidate.do()
+    for i in range(3):
+        candidate.do()
     print "after position: ", candidate.robot.position()
     candidate.robot.vrep_client.stopSimulation()
     #candidate.robot.vrep_client.stopSimulation()

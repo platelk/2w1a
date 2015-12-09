@@ -32,7 +32,7 @@ class VRepClient:
         return val
 
     def getObjectOrientation(self, obj):
-        ret, val = vrep.simxGetObjectOrientation(self.clientID, obj, -1, vrep.simx_opmode_buffer)
+        ret, val = vrep.simxGetObjectOrientation(self.clientID, obj, -1, self.opmode)
         return val
 
     def setObjectPosition(self, obj, position):
