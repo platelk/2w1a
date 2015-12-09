@@ -1,8 +1,12 @@
 import numpy
 import math
+import pickle
+import time
+
 
 def calc_dist(p1,p2):
     return numpy.linalg.norm(numpy.array(p1)-numpy.array(p2))
+
 
 class Candidate:
     def __init__(self, DNA=None):
@@ -61,13 +65,16 @@ def rankSelection(population):
     return population[getIdx(population)], population[getIdx(population)]
 
 class GenAlgo:
-    def __init__(self, createCandidate, fitness, nbPopulate=5, crossOverFct=middleCrossOver, selection=rankSelection):
+    def __init__(self, createCandidate, fitness, nbPopulate=5, crossOverFct=middleCrossOver, selection=randomSelection, loadfile=None):
+        self.savefile = './saved/' + str(time.time()) + '.dat'
         self.createCandidate = createCandidate
         self.fitness = fitness
         self.populations = []
         self.nbPopulate = nbPopulate
         self.crossOverFct = crossOverFct
         self.selection = selection
+        if (loadfile is not None):
+          self.load(loadfile)
 
     def createPopulation(self):
         population = []
@@ -85,11 +92,23 @@ class GenAlgo:
 
         return child1, child2
 
+    def save(self):
+        try:
+          with open(self.savefile, 'wb') as savefile:
+            pickle.dump(self.populations[-1], savefile)
+        except:
+          print 'Something gone wrong'
+
+    def load(self, filename):
+        with open(filename, 'rb') as loadfile:
+          self.populations = [pickle.load(loadfile)]
+
     def sortCandidate(self):
         return sorted(self.populations[-1], key=self.fitness, cmp=lambda x, y: int((calc_dist((0, 0, 0), x) - calc_dist((0, 0, 0), y))*1000))
 
     def run(self, it=5, state={}):
-        self.createPopulation()
+        if len(self.populations) == 0:
+          self.createPopulation()
         for i in range(it):
             self.sortCandidate()
             newGeneration = []
@@ -101,3 +120,4 @@ class GenAlgo:
             print "================="
             newGeneration[0].do()
             self.populations.append(newGeneration)
+            self.save()
