@@ -117,8 +117,11 @@ def rankSelection(population):
         return int(math.ceil((r / (len(population))) / len(population)))
     return population[getIdx(population)], population[getIdx(population)]
 
+def newGenerationSelection(populations):
+    return populations[:int(len(populations)*0.8)]
+
 class GenAlgo:
-    def __init__(self, createCandidate, fitness, nbPopulate=5, crossOverFct=randomCrossOver, selection=randomSelection, loadfile=None):
+    def __init__(self, createCandidate, fitness, nbPopulate=5, crossOverFct=randomCrossOver, selection=randomSelection, loadfile=None, newGenerationSelection=newGenerationSelection):
         self.savefile = './saved/' + str(time.time()) + '.dat'
         self.createCandidate = createCandidate
         self.fitness = fitness
@@ -126,6 +129,7 @@ class GenAlgo:
         self.nbPopulate = nbPopulate
         self.crossOverFct = crossOverFct
         self.selection = selection
+        self.newGenerationSelection = newGenerationSelection
         if (loadfile is not None):
           self.load(loadfile)
 
@@ -159,21 +163,29 @@ class GenAlgo:
     def sortCandidate(self):
         tmp = [(self.fitness(i), i) for i in self.populations[-1]]
         tmp = sorted(tmp, key=lambda x: x[0])
-        print tmp[::-1]
-        return [i[1] for i in tmp[::-1]]
+        return [i[1] for i in tmp[::-1]], tmp[::-1]
+
+    def printGenerationResume(self, result):
+        print "Top 5:"
+        for i, c in enumerate(self.populations[-1][:5]):
+            print "   ", i, ". ", result[i]
+        print "Total score: ", sum([i[0] for i in result])
 
     def run(self, it=5, state={}):
         if len(self.populations) == 0:
           self.createPopulation()
         for i in range(it):
             print ">>>{ Iteration: ", i, " }<<<"
-            self.populations[-1] = self.sortCandidate()
+            self.populations[-1], result = self.sortCandidate()
             newGeneration = []
             for c in range(len(self.populations[-1])):
                 c1, c2 = self.selection(self.populations[-1])
                 child1, child2 = self.crossOver(c1, c2)
                 newGeneration.append(child1)
-            print "================="
-            newGeneration[0].do()
+            self.printGenerationResume(result)
             self.populations.append(newGeneration)
             self.save()
+            # Remove bad performing candidate ?
+            self.populations[-1] = self.newGenerationSelection(self.populations[-1])
+            while len(self.populations[-1]) < self.nbPopulate:
+                self.populations[-1].append(self.createCandidate())
