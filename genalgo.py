@@ -167,7 +167,6 @@ class GenAlgo:
             self.populations[-1] = self.sortCandidate()
             newGeneration = []
             for c in range(len(self.populations[-1])):
-                print "---"
                 c1, c2 = self.selection(self.populations[-1])
                 child1, child2 = self.crossOver(c1, c2)
                 newGeneration.append(child1)
