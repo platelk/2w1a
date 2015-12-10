@@ -18,7 +18,7 @@ if __name__ == '__main__':
 
     robot = robot.Robot(vclient)
 
-    algo = genalgo.GenAlgo(lambda: wheelandarm.createWheelCandidate(robot), wheelandarm.positionFitness, loadfile=loadfile, nbPopulate=50)
+    algo = genalgo.GenAlgo(lambda: wheelandarm.createWheelCandidate(robot), wheelandarm.positionFitness, loadfile=loadfile, nbPopulate=25)
     algo.run(it=50)
 
     #sys.stdin.readline()

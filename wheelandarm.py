@@ -24,13 +24,13 @@ class RobotOperation(Candidate):
             self.setDNA(DNA)
 
     def getMotorToMove(self):
-        return [self.robot.arm.elbow, self.robot.arm.shoulder, self.robot.arm.wrist][self.motorToMove%3]
+        return [self.robot.arm.elbow, self.robot.arm.wrist, self.robot.arm.shoulder][self.motorToMove%2]
 
     def do(self):
         self.getMotorToMove().setRotation(self.rotation)
 
     def getDNA(self):
-        return [bitfield(self.motorToMove, 1), bitfield(self.rotation, 8)]
+        return [bitfield(self.motorToMove, 0), bitfield(self.rotation, 8)]
 
     def setDNA(self, DNA):
         self.motorToMove = fromBitfield(DNA[0])
@@ -47,7 +47,7 @@ class StepCandidate(Candidate):
         self.operations = []
         if generateOperations:
             for i in range(numpy.random.randint(70)+40):
-                self.operations.append(RobotOperation(robot, numpy.random.randint(3), numpy.random.randint(340)))
+                self.operations.append(RobotOperation(robot, numpy.random.randint(2), numpy.random.randint(340)))
 
     def getDNA(self):
         return [dna.getDNA() for dna in self.operations]
@@ -73,7 +73,9 @@ def positionFitness(candidate):
     distFactor = 100000
     orientationFactor = 10000
 
+    candidate.robot.arm.shoulder.setRotation(250.0)
     candidate.robot.vrep_client.startSimulation()
+
     save = candidate.robot.position()
     saveO = candidate.robot.orientation()
 
