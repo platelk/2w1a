@@ -74,11 +74,17 @@ def positionFitness(candidate):
     #candidate.robot.vrep_client.waitUntilAvailable()
     candidate.robot.vrep_client.startSimulation()
     save = candidate.robot.position()
+    saveO = candidate.robot.orientation()
     print "base position: ", candidate.robot.position()
+    print "base orientation: ", candidate.robot.orientation()
+
     for i in range(3):
         candidate.do()
-    candidate.robot.vrep_client.stopSimulation()
     after = candidate.robot.position()
+    afterO = candidate.robot.orientation()
+    candidate.robot.vrep_client.stopSimulation()
     print "after position: ", after
+    print "after orientation: ", candidate.robot.orientation()
+    print "======"
     #candidate.robot.vrep_client.stopSimulation()
-    return int(calc_dist(after, save)*100000)
+    return int(calc_dist(after, save)*100000) - int(calc_dist(afterO, saveO)*100000)
