@@ -24,7 +24,7 @@ class Candidate:
         return Candidate(DNA=DNA)
 
 
-def middleCrossOver(dna1, dna2):
+def middleCrossOver(dna1, dna2, pos1, pos2):
     cdna1 = []
     cdna2 = []
 
@@ -35,14 +35,67 @@ def middleCrossOver(dna1, dna2):
         return tmp
 
     for operation1, operation2 in zip(dna1, dna2):
-        print operation1, operation2
         cdna1.append([mixList(operation1[0], operation2[0]), mixList(operation1[1], operation2[1])])
         cdna2.append([mixList(operation2[0], operation1[0]), mixList(operation2[1], operation1[1])])
 
     if len(cdna1) < len(dna1) or len(cdna2) < len(dna2):
         def expandDNA(cdna, dna):
             for o in dna[len(cdna):]:
-                if numpy.random.randint(4) > 1:
+                if numpy.random.randint(8) > 1:
+                    cdna.append(o)
+        expandDNA(cdna1, dna1)
+        expandDNA(cdna2, dna2)
+
+
+    return cdna1, cdna2
+
+def fitnessCrossOver(dna1, dna2, pos1, pos2):
+    cdna1 = []
+    cdna2 = []
+
+    def mixList(l1, l2):
+        tmp = []
+        tmp.extend(l1[:(len(l1)/1.5)])
+        tmp.extend(l2[(len(l1)/1.5):])
+        return tmp
+
+    for operation1, operation2 in zip(dna1, dna2):
+        cdna1.append([mixList(operation1[0], operation2[0]), mixList(operation1[1], operation2[1])])
+        cdna2.append([mixList(operation2[0], operation1[0]), mixList(operation2[1], operation1[1])])
+
+    if len(cdna1) < len(dna1) or len(cdna2) < len(dna2):
+        def expandDNA(cdna, dna):
+            for o in dna[len(cdna):]:
+                if numpy.random.randint(8) > 1:
+                    cdna.append(o)
+        expandDNA(cdna1, dna1)
+        expandDNA(cdna2, dna2)
+
+
+    return cdna1, cdna2
+
+
+def randomCrossOver(dna1, dna2, pos1, pos2):
+    cdna1 = []
+    cdna2 = []
+
+    def mixList(l1, l2, pos1, pos2):
+        tmp = []
+        for i in range(len(l1)):
+            if numpy.random.randint(pos1+pos2) < pos1:
+                tmp.append(l1[i])
+            else:
+                tmp.append(l2[i])
+        return tmp
+
+    for operation1, operation2 in zip(dna1, dna2):
+        cdna1.append([mixList(operation1[0], operation2[0], pos1, pos2), mixList(operation1[1], operation2[1], pos1, pos2)])
+        cdna2.append([mixList(operation2[0], operation1[0], pos2, pos1), mixList(operation2[1], operation1[1], pos2, pos1)])
+
+    if len(cdna1) < len(dna1) or len(cdna2) < len(dna2):
+        def expandDNA(cdna, dna):
+            for o in dna[len(cdna):]:
+                if numpy.random.randint(9) > 1:
                     cdna.append(o)
         expandDNA(cdna1, dna1)
         expandDNA(cdna2, dna2)
@@ -65,7 +118,7 @@ def rankSelection(population):
     return population[getIdx(population)], population[getIdx(population)]
 
 class GenAlgo:
-    def __init__(self, createCandidate, fitness, nbPopulate=5, crossOverFct=middleCrossOver, selection=randomSelection, loadfile=None):
+    def __init__(self, createCandidate, fitness, nbPopulate=5, crossOverFct=randomCrossOver, selection=randomSelection, loadfile=None):
         self.savefile = './saved/' + str(time.time()) + '.dat'
         self.createCandidate = createCandidate
         self.fitness = fitness
@@ -83,7 +136,7 @@ class GenAlgo:
         self.populations.append(population)
 
     def crossOver(self, candidate1, candidate2):
-        dna1, dna2 = self.crossOverFct(candidate1.getDNA(), candidate2.getDNA())
+        dna1, dna2 = self.crossOverFct(candidate1.getDNA(), candidate2.getDNA(), len(self.populations[-1]) - self.populations[-1].index(candidate1), len(self.populations[-1]) - self.populations[-1].index(candidate2))
 
         child1 = candidate1.copy()
         child1.setDNA(dna1)

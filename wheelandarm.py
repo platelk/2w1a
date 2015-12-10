@@ -70,8 +70,9 @@ def createWheelCandidate(robot):
 
 
 def positionFitness(candidate):
-    #candidate.robot.vrep_client.connect()
-    #candidate.robot.vrep_client.waitUntilAvailable()
+    distFactor = 100000
+    orientationFactor = 10000
+
     candidate.robot.vrep_client.startSimulation()
     save = candidate.robot.position()
     saveO = candidate.robot.orientation()
@@ -80,11 +81,13 @@ def positionFitness(candidate):
 
     for i in range(3):
         candidate.do()
+    candidate.robot.vrep_client.stopSimulation()
     after = candidate.robot.position()
     afterO = candidate.robot.orientation()
-    candidate.robot.vrep_client.stopSimulation()
     print "after position: ", after
     print "after orientation: ", candidate.robot.orientation()
+    print "dist: ", int(calc_dist(after, save)*distFactor), ", orientation: ", int(calc_dist(afterO, saveO)*orientationFactor)
+    print "result: ", int(calc_dist(after, save)*distFactor) - int((abs(afterO[0] - saveO[0]))*orientationFactor)
     print "======"
     #candidate.robot.vrep_client.stopSimulation()
-    return int(calc_dist(after, save)*100000) - int(calc_dist(afterO, saveO)*100000)
+    return int(calc_dist(after, save)*distFactor) - int((abs(afterO[0] - saveO[0]))*orientationFactor)
