@@ -114,7 +114,7 @@ def rankSelection(population):
         for i in range(len(population)):
             nbRand += (i+1)*len(population)
         r = numpy.random.randint(nbRand)
-        return int(math.ceil(r / (len(population)) / len(population)))
+        return int(math.ceil((r / (len(population))) / len(population)))
     return population[getIdx(population)], population[getIdx(population)]
 
 class GenAlgo:
@@ -157,7 +157,10 @@ class GenAlgo:
           self.populations = [pickle.load(loadfile)]
 
     def sortCandidate(self):
-        return sorted(self.populations[-1], key=self.fitness, cmp=lambda x, y: cmp(x, y))
+        tmp = [(self.fitness(i), i) for i in self.populations[-1]]
+        tmp = sorted(tmp, key=lambda x: x[0])
+        print tmp[::-1]
+        return [i[1] for i in tmp[::-1]]
 
     def run(self, it=5, state={}):
         if len(self.populations) == 0:
